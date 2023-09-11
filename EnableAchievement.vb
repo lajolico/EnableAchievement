@@ -23,11 +23,11 @@ Public Module BunchOfDelegates
         If IsNothing(theMethod) Then Throw New KeyNotFoundException
         Return theMethod.CreateDelegate(GetType(Action), target)
     End Function
-    Public Function ProgressOwnedWorkshopCount(target As AchievementsCampaignBehavior) As Action(Of Workshop, Hero)
+    Public Function ProgressOwnedWorkshopCount(target As AchievementsCampaignBehavior) As Action(Of Workshop, Hero, WorkshopType)
         Dim theType = GetType(AchievementsCampaignBehavior)
         Dim theMethod = theType.GetMethod("ProgressOwnedWorkshopCount", BindingFlags.NonPublic Or BindingFlags.Instance)
         If IsNothing(theMethod) Then Throw New KeyNotFoundException
-        Return theMethod.CreateDelegate(GetType(Action(Of Workshop, Hero)), target)
+        Return theMethod.CreateDelegate(GetType(Action(Of Workshop, Hero, WorkshopType)), target)
     End Function
     Public Function ProgressOwnedCaravanCount(target As AchievementsCampaignBehavior) As Action(Of MobileParty)
         Dim theType = GetType(AchievementsCampaignBehavior)
@@ -65,11 +65,11 @@ Public Module BunchOfDelegates
         If IsNothing(theMethod) Then Throw New KeyNotFoundException
         Return theMethod.CreateDelegate(GetType(Action(Of Clan, Boolean)), target)
     End Function
-    Public Function OnHideoutBattleCompleted(target As AchievementsCampaignBehavior) As Action(Of BattleSideEnum, HideoutEventComponent)
+    Public Function OnHideoutBattleCompleted(target As AchievementsCampaignBehavior) As Action(Of BattleSideEnum, MapEvent)
         Dim theType = GetType(AchievementsCampaignBehavior)
         Dim theMethod = theType.GetMethod("OnHideoutBattleCompleted", BindingFlags.NonPublic Or BindingFlags.Instance)
         If IsNothing(theMethod) Then Throw New KeyNotFoundException
-        Return theMethod.CreateDelegate(GetType(Action(Of BattleSideEnum, HideoutEventComponent)), target)
+        Return theMethod.CreateDelegate(GetType(Action(Of BattleSideEnum, MapEvent)), target)
     End Function
     Public Function ProgressHeroSkillValue(target As AchievementsCampaignBehavior) As Action(Of Hero, SkillObject, Integer, Boolean)
         Dim theType = GetType(AchievementsCampaignBehavior)
@@ -113,11 +113,11 @@ Public Module BunchOfDelegates
         If IsNothing(theMethod) Then Throw New KeyNotFoundException
         Return theMethod.CreateDelegate(GetType(Action(Of Town, Building, Integer)), target)
     End Function
-    Public Function OnNewItemCrafted(target As AchievementsCampaignBehavior) As Action(Of ItemObject, ItemModifier, Boolean)
+    Public Function OnNewItemCrafted(target As AchievementsCampaignBehavior) As Action(Of ItemObject, Crafting.OverrideData, Boolean)
         Dim theType = GetType(AchievementsCampaignBehavior)
         Dim theMethod = theType.GetMethod("OnNewItemCrafted", BindingFlags.NonPublic Or BindingFlags.Instance)
         If IsNothing(theMethod) Then Throw New KeyNotFoundException
-        Return theMethod.CreateDelegate(GetType(Action(Of ItemObject, ItemModifier, Boolean)), target)
+        Return theMethod.CreateDelegate(GetType(Action(Of ItemObject, Crafting.OverrideData, Boolean)), target)
     End Function
     Public Function OnClanChangedKingdom(target As AchievementsCampaignBehavior) As Action(Of Clan, Kingdom, Kingdom, ChangeKingdomAction.ChangeKingdomActionDetail, Boolean)
         Dim theType = GetType(AchievementsCampaignBehavior)
@@ -249,7 +249,7 @@ Public Module EnableAchievement
         Public Shared Function Prefix(ByRef __instance As AchievementsCampaignBehavior) As Boolean
             Dim this = __instance
             CampaignEvents.OnCharacterCreationIsOverEvent.AddNonSerializedListener(this, CacheHighestSkillValue(this))
-            CampaignEvents.WorkshopOwnerChangedEvent.AddNonSerializedListener(this, ProgressOwnedWorkshopCount(this))
+            CampaignEvents.OnWorkshopChangedEvent.AddNonSerializedListener(this, ProgressOwnedWorkshopCount(this))
             CampaignEvents.MobilePartyCreated.AddNonSerializedListener(this, ProgressOwnedCaravanCount(this))
             CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, OnSettlementOwnerChanged(this))
             CampaignEvents.KingdomCreatedEvent.AddNonSerializedListener(this, ProgressCreatedKingdomCount(this))
@@ -278,11 +278,11 @@ Public Module EnableAchievement
             CampaignEvents.HeroCreated.AddNonSerializedListener(this, OnHeroCreated(this))
             CampaignEvents.OnIssueUpdatedEvent.AddNonSerializedListener(this, OnIssueUpdated(this))
             CampaignEvents.RulingClanChanged.AddNonSerializedListener(this, OnRulingClanChanged(this))
-            CampaignEvents.OnConfigChangedEvent.AddNonSerializedListener(this, OnConfigChanged(this))
 
             If Not IsNothing(StoryModeManager.Current) Then
                 StoryModeEvents.OnStoryModeTutorialEndedEvent.AddNonSerializedListener(this, CheckTutorialFinished(this))
                 StoryModeEvents.OnBannerPieceCollectedEvent.AddNonSerializedListener(this, ProgressAssembledDragonBanner(this))
+                StoryModeEvents.OnConfigChangedEvent.AddNonSerializedListener(this, OnConfigChanged(this))
             End If
             Return False
         End Function
