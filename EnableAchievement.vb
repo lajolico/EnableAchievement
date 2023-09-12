@@ -6,7 +6,9 @@ Imports TaleWorlds.CampaignSystem
 Imports TaleWorlds.CampaignSystem.Actions
 Imports TaleWorlds.CampaignSystem.Actions.ChangeOwnerOfSettlementAction
 Imports TaleWorlds.CampaignSystem.Actions.KillCharacterAction
+Imports TaleWorlds.CampaignSystem.CharacterDevelopment
 Imports TaleWorlds.CampaignSystem.Election
+Imports TaleWorlds.CampaignSystem.Extensions
 Imports TaleWorlds.CampaignSystem.Issues
 Imports TaleWorlds.CampaignSystem.MapEvents
 Imports TaleWorlds.CampaignSystem.Party
@@ -15,6 +17,7 @@ Imports TaleWorlds.CampaignSystem.Settlements.Buildings
 Imports TaleWorlds.CampaignSystem.Settlements.Workshops
 Imports TaleWorlds.Core
 Imports TaleWorlds.Library
+Imports TaleWorlds.Localization
 
 Public Module BunchOfDelegates
     Public Function CacheHighestSkillValue(target As AchievementsCampaignBehavior) As Action
@@ -228,12 +231,15 @@ Public Module EnableAchievement
             Task.Delay(1000 * 1).ContinueWith(
                 Sub()
                     Dim theType = GetType(AchievementsCampaignBehavior)
-                    Dim deactivateAchievements = theType.GetProperty("_deactivateAchievements", BindingFlags.NonPublic Or BindingFlags.Instance)
+                    Dim deactivateAchievements = theType.GetField("_deactivateAchievements", BindingFlags.NonPublic Or BindingFlags.Instance)
+                    Dim isAchievementsDeactivated As Boolean = DirectCast(deactivateAchievements.GetValue(achievementManagerBehaviour), Boolean)
                     If IsNothing(deactivateAchievements) Then Exit Sub
                     deactivateAchievements.SetValue(achievementManagerBehaviour, False)
+                    MBInformationManager.AddQuickInformation(New TextObject("Achievements are enabled!", DirectCast(Nothing, Dictionary(Of String, Object))))
                 End Sub)
         Catch ex As InvalidCastException
             Print("achievement enabler: there's no achievement in custom battle :^)")
+
         End Try
     End Sub
     <HarmonyPatch(GetType(AchievementsCampaignBehavior), "CheckAchievementSystemActivity")>
